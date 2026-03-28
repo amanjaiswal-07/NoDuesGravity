@@ -1,0 +1,139 @@
+// import { useState } from "react";
+// import { useOutletContext } from "react-router-dom";
+// import RejectedRequests from "../../Request/RejectedRequests.jsx";
+// import ViewDetailsModal from "../../Modal/ViewDetailsModal.jsx"
+
+
+// export default function MedicalRejected() {
+//   const { rejected , moveRejectedToApproved  } = useOutletContext();
+
+//   const [viewOpen, setViewOpen] = useState(false);
+//   const [viewStudent, setViewStudent] = useState(null);
+
+//   const openView = (student) => {
+//     setViewStudent(student);
+//     setViewOpen(true);
+//   };
+
+//   const closeView = () => {
+//     setViewOpen(false);
+//     setViewStudent(null);
+//   };
+
+//   return (
+//     <>
+//       <RejectedRequests
+//         title="Medical - Rejected Requests"
+//         data={rejected}
+//         onMoveToApproved={moveRejectedToApproved}
+//         onView={openView}
+//       />
+
+//       <ViewDetailsModal
+//         open={viewOpen}
+//         student={viewStudent}
+//         status="rejected"
+//         rejectionReason={viewStudent?.rejectionReason || ""}
+//         onClose={closeView}
+//       />
+//     </>
+//   );
+// }
+import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
+import RejectedRequests from "../../Request/RejectedRequests.jsx";
+import ViewDetailsModal from "../../Modal/ViewDetailsModal.jsx";
+import ConfirmModal from "../../Modal/ConfirmModal.jsx";
+
+export default function MedicalRejected() {
+  const { rejected, moveRejectedToApproved } = useOutletContext();
+
+  const [viewOpen, setViewOpen] = useState(false);
+  const [viewStudent, setViewStudent] = useState(null);
+
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [confirmStudent, setConfirmStudent] = useState(null);
+
+  const [bulkConfirmOpen, setBulkConfirmOpen] = useState(false);
+  const [bulkConfirmStudents, setBulkConfirmStudents] = useState([]);
+
+  const openView = (student) => {
+    setViewStudent(student);
+    setViewOpen(true);
+  };
+
+  const closeView = () => {
+    setViewOpen(false);
+    setViewStudent(null);
+  };
+
+  return (
+    <>
+      <RejectedRequests
+        title="Medical - Rejected Requests"
+        data={rejected}
+        onMoveToApproved={(s) => {
+          setConfirmStudent(s);
+          setConfirmOpen(true);
+        }}
+        onMoveToApprovedSelected={(students) => {
+          setBulkConfirmStudents(students);
+          setBulkConfirmOpen(true);
+        }}
+        onView={openView}
+      />
+
+      <ConfirmModal
+        open={confirmOpen}
+        title="Move to Approved?"
+        message={
+          confirmStudent
+            ? `Move ${confirmStudent.name} (${confirmStudent.roll}) to approved?`
+            : ""
+        }
+        confirmText="Yes, move"
+        cancelText="Cancel"
+        onClose={() => {
+          setConfirmOpen(false);
+          setConfirmStudent(null);
+        }}
+        onConfirm={() => {
+          if (confirmStudent) moveRejectedToApproved(confirmStudent);
+          setConfirmOpen(false);
+          setConfirmStudent(null);
+        }}
+      />
+
+      <ConfirmModal
+        open={bulkConfirmOpen}
+        title="Approve Selected Rejected Requests?"
+        message={
+          bulkConfirmStudents.length > 0
+            ? `Move ${bulkConfirmStudents.length} selected students to approved?`
+            : ""
+        }
+        confirmText="Approve Selected"
+        cancelText="Cancel"
+        onClose={() => {
+          setBulkConfirmOpen(false);
+          setBulkConfirmStudents([]);
+        }}
+        onConfirm={() => {
+          bulkConfirmStudents.forEach((student) =>
+            moveRejectedToApproved(student)
+          );
+          setBulkConfirmOpen(false);
+          setBulkConfirmStudents([]);
+        }}
+      />
+
+      <ViewDetailsModal
+        open={viewOpen}
+        student={viewStudent}
+        status="rejected"
+        rejectionReason={viewStudent?.rejectionReason || ""}
+        onClose={closeView}
+      />
+    </>
+  );
+}

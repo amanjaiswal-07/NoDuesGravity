@@ -1,0 +1,31 @@
+const express = require('express');
+const router = express.Router();
+const verifyToken = require('../middleware/verifyToken');
+const { requirePermission } = require('../middleware/requirePermission');
+const {
+    listEligibleStudents, addEligibleStudent, bulkAddEligibleStudents, bulkRemoveEligibleStudents, removeEligibleStudent, editEligibleStudent,
+    listStaffAccess, addStaffAccess, updateStaffAccess, removeStaffAccess,
+    listApplications,
+} = require('../controllers/admin.controller');
+
+// All admin routes require authentication + 'admin' permission
+router.use(verifyToken, requirePermission('admin'));
+
+// ── Eligible Students ──────────────────────────────────────────────────────────
+router.get('/eligible-students', listEligibleStudents);
+router.post('/eligible-students/bulk', bulkAddEligibleStudents);
+router.post('/eligible-students', addEligibleStudent);
+router.delete('/eligible-students/bulk', bulkRemoveEligibleStudents);
+router.put('/eligible-students/:id', editEligibleStudent);
+router.delete('/eligible-students/:id', removeEligibleStudent);
+
+// ── Staff Access ───────────────────────────────────────────────────────────────
+router.get('/staff-access', listStaffAccess);
+router.post('/staff-access', addStaffAccess);
+router.put('/staff-access/:id', updateStaffAccess);
+router.delete('/staff-access/:id', removeStaffAccess);
+
+// ── Applications ───────────────────────────────────────────────────────────────
+router.get('/applications', listApplications);
+
+module.exports = router;
