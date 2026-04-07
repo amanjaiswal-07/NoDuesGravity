@@ -1,6 +1,6 @@
 import { useOutletContext } from "react-router-dom";
 import ConfirmModal from "../../Modal/ConfirmModal";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../../api/client";
 
 export default function StudentApply() {
@@ -17,6 +17,27 @@ export default function StudentApply() {
   const [errorMsg, setErrorMsg] = useState("");
 
   const hasOngoingApplication = Boolean(currentApplication);
+
+  const [overallStatus, setOverallStatus] = useState(currentApplication?.status || "pending");
+
+  useEffect(() => {
+    if (!currentApplication) return;
+    const fetchStatus = async () => {
+      try {
+        const { data } = await api.get(`/student/request/${currentApplication._id}/steps`);
+        const steps = data.steps || [];
+        const allApproved = steps.every(s => s.status === 'approved');
+        const anyRejected = steps.some(s => s.status === 'rejected');
+
+        if (allApproved && steps.length > 0) setOverallStatus("All Steps Completed");
+        else if (anyRejected) setOverallStatus("Action Required");
+        else setOverallStatus("In Progress");
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchStatus();
+  }, [currentApplication]);
 
   const handleApply = async () => {
     try {
@@ -85,7 +106,7 @@ export default function StudentApply() {
                 You already have an ongoing or completed application.
               </p>
               <p className="mt-1 text-sm text-blue-100/80">
-                Current Status: {currentApplication.status}
+                Current Status: {overallStatus}
               </p>
             </div>
           )}

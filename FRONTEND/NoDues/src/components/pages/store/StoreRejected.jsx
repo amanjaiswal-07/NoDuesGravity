@@ -25,8 +25,8 @@
 //       <ViewDetailsModal
 //         open={viewOpen}
 //         student={viewStudent}
-//         status="rejected"
-//         rejectionReason={viewStudent?.rejectionReason || ""}
+//
+//
 //         onClose={() => {
 //           setViewOpen(false);
 //           setViewStudent(null);
@@ -120,9 +120,7 @@ export default function StoreRejected() {
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="rejected"
         currentDepartment="store"
-        rejectionReason={viewStudent?.rejectionReason || ""}
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

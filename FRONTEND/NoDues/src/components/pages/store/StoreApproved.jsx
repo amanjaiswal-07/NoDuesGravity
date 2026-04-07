@@ -8,8 +8,35 @@ import ViewDetailsModal from "../../Modal/ViewDetailsModal";
 const STORE_REASONS = [
   { value: "general_equipment", label: "Institute equipment issued to the student", requiresText: true },
   { value: "club_equipment", label: "Club inventory issued on behalf of the student", requiresText: true },
+  { value: "approval_was_mistake", label: "Approval was made in error", requiresText: true },
   { value: "misc", label: "Miscellaneous", requiresText: true },
 ];
+
+// Branch → HOD unit code
+const BRANCH_TO_HOD = {
+  CSE: { value: "hod_cse", label: "HOD - CSE" },
+  ECE: { value: "hod_ece", label: "HOD - ECE" },
+  CCE: { value: "hod_cce", label: "HOD - CCE" },
+  MECH: { value: "hod_mech", label: "HOD - MECH" },
+};
+
+/**
+ * Returns dynamic dep options for Store based on student's branch and hostel.
+ * Shows only the relevant HOD and the student's specific warden.
+ */
+function getStoreDepOptions(student) {
+  const branch = (student?.branch || "").toUpperCase();
+  const hostel = student?.hostel || "";
+
+  const hodOption = BRANCH_TO_HOD[branch] || null;
+  const allHods = Object.values(BRANCH_TO_HOD);
+  const hodOptions = hodOption ? [hodOption] : allHods;
+
+  const wardenLabel = hostel ? `Warden Incharge (${hostel})` : "Warden Incharge";
+  const wardenOption = { value: "warden", label: wardenLabel };
+
+  return [...hodOptions, wardenOption];
+}
 
 export default function StoreApproved() {
   const { approved, moveApprovedToRejected } = useOutletContext();
@@ -25,43 +52,33 @@ export default function StoreApproved() {
       <ApprovedRequests
         title="Store - Approved Requests"
         data={approved}
-        onMoveToRejected={(s) => {
-          setSelectedStudent(s);
-          setRejectOpen(true);
-        }}
-        onView={(s) => {
-          setViewStudent(s);
-          setViewOpen(true);
-        }}
+        onMoveToRejected={(s) => { setSelectedStudent(s); setRejectOpen(true); }}
+        onView={(s) => { setViewStudent(s); setViewOpen(true); }}
       />
 
       <RejectModal
         open={rejectOpen}
         student={selectedStudent}
-        onClose={() => {
-          setRejectOpen(false);
-          setSelectedStudent(null);
-        }}
-        onConfirm={(finalReason) => {
-          moveApprovedToRejected(selectedStudent, finalReason);
+        onClose={() => { setRejectOpen(false); setSelectedStudent(null); }}
+        onConfirm={(reason, description, restartFrom) => {
+          if (!selectedStudent) return;
+          moveApprovedToRejected(selectedStudent, reason, description, restartFrom);
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
         reasons={STORE_REASONS}
+        dependencyOptions={getStoreDepOptions(selectedStudent)}
+        dependenciesRequired={false}
         title="Move to Rejected"
-        confirmText="Move"
+        confirmText="Move to Rejected"
         placeholder="Write details (item name, quantity, issue date, club name if any)..."
       />
 
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="approved"
         currentDepartment="store"
-        onClose={() => {
-          setViewOpen(false);
-          setViewStudent(null);
-        }}
+        onClose={() => { setViewOpen(false); setViewStudent(null); }}
       />
     </>
   );

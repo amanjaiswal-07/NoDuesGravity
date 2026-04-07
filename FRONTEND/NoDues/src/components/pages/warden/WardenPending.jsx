@@ -188,8 +188,8 @@ export default function WardenPending() {
               setRejectOpen(false);
               setSelectedStudent(null);
             }}
-            onConfirm={(finalReason) => {
-              rejectStudent(selectedStudent, finalReason);
+            onConfirm={(reason, description, restartFrom) => {
+              rejectStudent(selectedStudent, reason, description, restartFrom);
               setRejectOpen(false);
               setSelectedStudent(null);
             }}
@@ -202,7 +202,7 @@ export default function WardenPending() {
           <ViewDetailsModal
             open={viewOpen}
             student={viewStudent}
-            status="pending"
+            currentDepartment="warden"
             onClose={() => {
               setViewOpen(false);
               setViewStudent(null);

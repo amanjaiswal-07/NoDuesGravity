@@ -158,26 +158,10 @@ import RejectModal from "../../Modal/RejectModal";
 import ViewDetailsModal from "../../Modal/ViewDetailsModal";
 
 const LAB_REASONS = [
-  {
-    value: "equipment_not_returned",
-    label: "Lab equipment / issued item has not been returned",
-    requiresText: true,
-  },
-  {
-    value: "records_not_verified",
-    label: "Lab usage / issue records could not be verified",
-    requiresText: true,
-  },
-  {
-    value: "pending_dues",
-    label: "Pending lab dues remain unsettled",
-    requiresText: true,
-  },
-  {
-    value: "misc",
-    label: "Miscellaneous",
-    requiresText: true,
-  },
+  { value: "equipment_not_returned", label: "Lab equipment / issued item has not been returned" },
+  { value: "records_not_verified", label: "Lab usage / issue records could not be verified" },
+  { value: "pending_dues", label: "Pending lab dues remain unsettled" },
+  { value: "misc", label: "Miscellaneous" },
 ];
 
 export default function LabsPending() {
@@ -280,21 +264,21 @@ export default function LabsPending() {
               setRejectOpen(false);
               setSelectedStudent(null);
             }}
-            onConfirm={(finalReason) => {
-              rejectStudent(selectedStudent, finalReason);
+            onConfirm={(reason, description, restartFrom) => {
+              rejectStudent(selectedStudent, reason, description, restartFrom);
               setRejectOpen(false);
               setSelectedStudent(null);
             }}
             reasons={LAB_REASONS}
-            title="Reject Request"
+            title="Reject Lab Clearance"
             confirmText="Confirm Reject"
-            placeholder="Write details (issued item, register entry, remarks)..."
+            placeholder="Specify the issued item, register entry, amount, or any remarks…"
           />
 
           <ViewDetailsModal
             open={viewOpen}
             student={viewStudent}
-            status="pending"
+            currentDepartment="labs"
             onClose={() => {
               setViewOpen(false);
               setViewStudent(null);

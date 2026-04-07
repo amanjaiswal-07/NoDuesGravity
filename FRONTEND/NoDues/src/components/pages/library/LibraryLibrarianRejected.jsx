@@ -65,9 +65,9 @@
 //       <ViewDetailsModal
 //         open={viewOpen}
 //         student={viewStudent}
-//         status="rejected"
-//         rejectionReason={viewStudent?.rejected?.reason || ""}
-//         showLibraryFields={true}
+//
+//
+//
 //         onClose={() => {
 //           setViewOpen(false);
 //           setViewStudent(null);
@@ -158,11 +158,9 @@ export default function LibraryLibrarianRejected() {
       />
 
       <ViewDetailsModal
+        currentDepartment="library_librarian"
         open={viewOpen}
         student={viewStudent}
-        status="rejected"
-        rejectionReason={viewStudent?.rejected?.reason || ""}
-        showLibraryFields={true}
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

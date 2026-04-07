@@ -67,11 +67,12 @@ export default function LabsApproved() {
               setRejectOpen(false);
               setSelectedStudent(null);
             }}
-            onConfirm={(finalReason) => {
-              moveApprovedToRejected(selectedStudent, finalReason);
-              setRejectOpen(false);
-              setSelectedStudent(null);
-            }}
+            onConfirm={(reason, description, restartFrom) => {
+          if (!selectedStudent) return;
+          moveApprovedToRejected(selectedStudent, reason, description, restartFrom);
+          setRejectOpen(false);
+          setSelectedStudent(null);
+        }}
             reasons={LAB_REASONS}
             title="Move to Rejected"
             confirmText="Move"
@@ -79,9 +80,9 @@ export default function LabsApproved() {
           />
 
           <ViewDetailsModal
+        currentDepartment="labs"
             open={viewOpen}
             student={viewStudent}
-            status="approved"
             onClose={() => {
               setViewOpen(false);
               setViewStudent(null);

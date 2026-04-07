@@ -49,7 +49,15 @@ function StepCard({ step, isLast }) {
       </div>
       <div className={`mb-4 flex-1 rounded-xl border p-4 ${c.card}`}>
         <div className="flex flex-wrap items-start justify-between gap-2">
-          <p className={`text-sm font-semibold ${c.text}`}>{step.unitLabel}</p>
+          <div>
+            <p className={`text-sm font-semibold ${c.text}`}>{step.unitLabel}</p>
+            {(step.status === "approved" || step.status === "rejected") && step.actionBy && (
+              <p className="mt-1 text-xs text-white/50">
+                Processed by: <span className="font-medium text-white/70">{step.actionBy}</span>
+                {step.actionAt ? ` on ${new Date(step.actionAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}` : ""}
+              </p>
+            )}
+          </div>
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${c.badge}`}>
             {c.label}
           </span>
@@ -57,10 +65,20 @@ function StepCard({ step, isLast }) {
         {step.status === "locked" && (
           <p className="mt-1.5 text-xs text-white/35">Awaiting prerequisite approvals</p>
         )}
-        {step.rejectionNote && (
-          <p className={`mt-2 border-t border-white/10 pt-2 text-xs italic ${c.text} opacity-80`}>
-            Reason: {step.rejectionNote}
-          </p>
+        {step.status === "rejected" && (
+          <div className="mt-3 rounded-lg border border-red-400/20 bg-red-500/10 p-3 space-y-1">
+            {step.rejectionReason && (
+              <p className="text-xs font-semibold text-red-300">
+                Reason: {step.rejectionReason}
+              </p>
+            )}
+            {step.rejectionDescription && (
+              <p className="text-xs text-red-200/80">{step.rejectionDescription}</p>
+            )}
+            {!step.rejectionReason && !step.rejectionDescription && (
+              <p className="text-xs text-red-300/70 italic">No details provided</p>
+            )}
+          </div>
         )}
         {step.studentReply && (
           <p className="mt-1 text-xs text-blue-300/80 italic">Your reply: {step.studentReply}</p>
@@ -101,13 +119,21 @@ function GroupCard({ groupLabel, steps, isLast }) {
           </div>
         </button>
         {expanded && (
-          <div className="border-t border-white/10 px-4 py-3 space-y-2">
+          <div className="border-t border-white/10 px-4 py-3 space-y-3">
             {steps.map((step) => {
               const sc = cfg(step.status);
               return (
-                <div key={step._id} className="flex items-center justify-between gap-2">
-                  <p className="text-xs text-white/70">{step.unitLabel}</p>
-                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${sc.badge}`}>{sc.label}</span>
+                <div key={step._id} className="flex flex-col gap-1 border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs text-white/70">{step.unitLabel}</p>
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${sc.badge}`}>{sc.label}</span>
+                  </div>
+                  {(step.status === "approved" || step.status === "rejected") && step.actionBy && (
+                    <p className="text-[10px] text-white/40">
+                      Processed by: <span className="font-medium text-white/60">{step.actionBy}</span>
+                      {step.actionAt ? ` on ${new Date(step.actionAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}` : ""}
+                    </p>
+                  )}
                 </div>
               );
             })}
@@ -201,6 +227,8 @@ export default function StudentTrack() {
   const [steps, setSteps] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [reapplying, setReapplying] = useState(false);
+  const [reapplyMsg, setReapplyMsg] = useState("");
 
   const fetchSteps = useCallback(async () => {
     if (!currentApplication?._id) return;
@@ -234,8 +262,32 @@ export default function StudentTrack() {
   }
 
   const organised = organiseSteps(steps);
-  const approved = steps.filter((s) => s.status === "approved").length;
+  const approvedCount = steps.filter((s) => s.status === "approved").length;
   const total = steps.length;
+  const rejectedSteps = steps.filter((s) => s.status === "rejected");
+  const hasRejections = rejectedSteps.length > 0;
+
+  // Compute overall status from actual step states (not backend field)
+  const overallStatus = total === 0
+    ? "in_progress"
+    : hasRejections
+      ? "action_required"
+      : approvedCount === total
+        ? "approved"
+        : "in_progress";
+
+  const handleReapply = async () => {
+    try {
+      setReapplying(true);
+      setReapplyMsg("");
+      await api.post("/student/reapply");
+      await fetchSteps();
+    } catch (err) {
+      setReapplyMsg(`❌ ${err.response?.data?.error || "Reapply failed. Please try again."}`);
+    } finally {
+      setReapplying(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -255,9 +307,58 @@ export default function StudentTrack() {
         </div>
       </div>
 
+      {/* Reapply Banner — shown when any step is rejected */}
+      {hasRejections && (
+        <div className="rounded-2xl border border-red-400/30 bg-red-500/10 p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-red-300">Action Required — Rejection Received</p>
+              <p className="mt-1 text-xs text-red-200/70">
+                One or more departments have rejected your request. Review the details below, then reapply.
+                Only the rejected steps will be reset — approved steps remain unchanged.
+              </p>
+            </div>
+            <button
+              onClick={handleReapply}
+              disabled={reapplying}
+              className={`shrink-0 rounded-xl border px-5 py-2.5 text-sm font-semibold transition ${reapplying
+                ? "cursor-not-allowed border-white/10 text-white/30"
+                : "border-red-400/50 text-red-300 hover:bg-red-500/20"
+                }`}
+            >
+              {reapplying ? "Reapplying…" : "Reapply Now"}
+            </button>
+          </div>
+
+          {/* List ALL rejected departments with reasons */}
+          <div className="mt-4 space-y-2">
+            {rejectedSteps.map((step) => (
+              <div key={step._id || step.unitCode} className="rounded-lg border border-red-400/20 bg-black/20 p-3">
+                <p className="text-xs font-semibold text-red-300">{step.unitLabel || step.unitCode}</p>
+                {step.rejectionReason && (
+                  <p className="mt-1 text-xs text-red-200/80">
+                    <span className="text-red-300/60">Reason:</span> {step.rejectionReason}
+                  </p>
+                )}
+                {step.rejectionDescription && (
+                  <p className="text-xs text-red-200/70">
+                    <span className="text-red-300/60">Details:</span> {step.rejectionDescription}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Error only (success msg removed per UX spec) */}
+          {reapplyMsg && !reapplyMsg.startsWith("✅") && (
+            <p className="mt-3 text-xs text-red-300">{reapplyMsg}</p>
+          )}
+        </div>
+      )}
+
       {/* Summary */}
       <div className="rounded-2xl border border-white/15 bg-white/5 p-6 space-y-4">
-        <OverallStatusBanner status={currentApplication.status} />
+        <OverallStatusBanner status={overallStatus} />
 
         <div className="grid gap-3 md:grid-cols-3">
           <div className="rounded-xl border border-white/10 bg-black/20 p-4">
@@ -274,11 +375,11 @@ export default function StudentTrack() {
           </div>
           <div className="rounded-xl border border-white/10 bg-black/20 p-4">
             <p className="text-xs text-white/50">Progress</p>
-            <p className="mt-1 text-sm font-medium text-white">{approved} / {total} approved</p>
+            <p className="mt-1 text-sm font-medium text-white">{approvedCount} / {total} approved</p>
             <div className="mt-2 h-1.5 w-full rounded-full bg-white/10">
               <div
                 className="h-1.5 rounded-full bg-emerald-400 transition-all"
-                style={{ width: total ? `${(approved / total) * 100}%` : "0%" }}
+                style={{ width: total ? `${(approvedCount / total) * 100}%` : "0%" }}
               />
             </div>
           </div>

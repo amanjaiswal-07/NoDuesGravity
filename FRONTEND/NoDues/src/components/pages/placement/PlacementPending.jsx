@@ -298,8 +298,8 @@ export default function PlacementPending() {
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
-        onConfirm={(finalReason) => {
-          rejectStudent(selectedStudent, finalReason);
+        onConfirm={(reason, description, restartFrom) => {
+          rejectStudent(selectedStudent, reason, description, restartFrom);
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
@@ -312,8 +312,7 @@ export default function PlacementPending() {
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="pending"
-        showPlacementFields={true}
+        currentDepartment="placement"
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

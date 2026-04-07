@@ -5,6 +5,15 @@ import ApprovedRequests from "../../Request/ApprovedRequests";
 import RejectModal from "../../Modal/RejectModal";
 import ViewDetailsModal from "../../Modal/ViewDetailsModal";
 
+const MEDICAL_REASONS = [
+  { value: "instrument_issued", label: "Instrument issued — not returned / not cleared", requiresText: true },
+  { value: "wheelchair_issued", label: "Wheelchair issued — not returned / not cleared", requiresText: true },
+  { value: "idcard_missing", label: "Student ID card not submitted / not readable", requiresText: true },
+  { value: "doc_incomplete", label: "Medical documents incomplete or missing", requiresText: true },
+  { value: "approval_was_mistake", label: "Approval was made in error", requiresText: true },
+  { value: "misc", label: "Miscellaneous", requiresText: true },
+];
+
 export default function MedicalApproved() {
   const { approved, moveApprovedToRejected } = useOutletContext();
 
@@ -24,11 +33,7 @@ export default function MedicalApproved() {
     setSelectedStudent(null);
   };
 
-  const confirmMove = (finalReason) => {
-    if (!selectedStudent) return;
-    moveApprovedToRejected(selectedStudent, finalReason);
-    closeReject();
-  };
+
 
   const openView = (student) => {
     setViewStudent(student);
@@ -53,13 +58,22 @@ export default function MedicalApproved() {
         open={rejectOpen}
         student={selectedStudent}
         onClose={closeReject}
-        onConfirm={confirmMove}
+        onConfirm={(reason, description, restartFrom) => {
+          if (!selectedStudent) return;
+          moveApprovedToRejected(selectedStudent, reason, description, restartFrom);
+          setRejectOpen(false);
+          setSelectedStudent(null);
+        }}
+        reasons={MEDICAL_REASONS}
+        title="Move to Rejected"
+        confirmText="Move to Rejected"
+        placeholder="Describe the issue (item name, quantity, remarks)..."
       />
 
       <ViewDetailsModal
+        currentDepartment="medical"
         open={viewOpen}
-        student={viewStudent} 
-        status="approved"
+        student={viewStudent}
         onClose={closeView}
       />
     </>

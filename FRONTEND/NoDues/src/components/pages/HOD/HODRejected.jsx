@@ -54,8 +54,8 @@
 //       <ViewDetailsModal
 //         open={viewOpen}
 //         student={viewStudent}
-//         status="rejected"
-//         rejectionReason={viewStudent?.rejectionReason || ""}
+//
+//
 //         onClose={() => {
 //           setViewOpen(false);
 //           setViewStudent(null);
@@ -147,9 +147,7 @@ export default function AdministrationRejected() {
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="rejected"
         currentDepartment="hod"
-        rejectionReason={viewStudent?.rejectionReason || ""}
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

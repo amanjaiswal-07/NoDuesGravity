@@ -165,8 +165,8 @@ export default function SportsPending() {
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
-        onConfirm={(finalReason) => {
-          rejectStudent(selectedStudent, finalReason);
+        onConfirm={(reason, description, restartFrom) => {
+          rejectStudent(selectedStudent, reason, description, restartFrom);
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
@@ -179,7 +179,7 @@ export default function SportsPending() {
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="pending"
+        currentDepartment="sports"
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

@@ -43,4 +43,7 @@ router.post(
     studentController.replyToRejectedStep
 );
 
+// ── Reapply after rejection ─────────────────────────────────────────────────────
+router.post('/reapply', studentController.reapply);
+
 module.exports = router;

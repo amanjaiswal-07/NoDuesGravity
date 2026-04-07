@@ -77,12 +77,26 @@ import RejectModal from "../../Modal/RejectModal";
 import ViewDetailsModal from "../../Modal/ViewDetailsModal";
 
 const NAD_REASONS = [
-  { value: "apaar", label: "APAAR ID not submitted / verified", requiresText: true },
-  { value: "abc", label: "ABC ID not submitted / verified", requiresText: true },
-  { value: "digilocker", label: "DigiLocker marksheets not fetched / verified", requiresText: true },
-  { value: "admission_docs", label: "Required admission documents pending / incomplete", requiresText: true },
-  { value: "misc", label: "Miscellaneous", requiresText: true },
+  { value: "apaar", label: "APAAR ID not submitted / verified" },
+  { value: "abc", label: "ABC ID not submitted / verified" },
+  { value: "digilocker", label: "DigiLocker marksheets not fetched / verified" },
+  { value: "admission_docs", label: "Required admission documents pending / incomplete" },
+  { value: "misc", label: "Miscellaneous" },
 ];
+
+// Branch-to-HOD mapping — returns only the relevant HOD for a student's branch
+const BRANCH_TO_HOD = {
+  CSE: { value: "hod_cse", label: "HOD - CSE" },
+  ECE: { value: "hod_ece", label: "HOD - ECE" },
+  CCE: { value: "hod_cce", label: "HOD - CCE" },
+  MECH: { value: "hod_mech", label: "HOD - MECH" },
+};
+
+function getHodOptionForStudent(student) {
+  const branch = (student?.branch || "").toUpperCase();
+  const hod = BRANCH_TO_HOD[branch];
+  return hod ? [hod] : Object.values(BRANCH_TO_HOD); // fallback: show all if branch unknown
+}
 
 export default function NadPending() {
   const { pending, approveStudent, rejectStudent } = useOutletContext();
@@ -167,25 +181,22 @@ export default function NadPending() {
       <RejectModal
         open={rejectOpen}
         student={selectedStudent}
-        onClose={() => {
-          setRejectOpen(false);
-          setSelectedStudent(null);
-        }}
-        onConfirm={(finalReason) => {
-          rejectStudent(selectedStudent, finalReason);
+        onClose={() => { setRejectOpen(false); setSelectedStudent(null); }}
+        onConfirm={(reason, description, restartFrom) => {
+          rejectStudent(selectedStudent, reason, description, restartFrom);
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
         reasons={NAD_REASONS}
-        title="Reject Request"
+        title="Reject NAD Request"
         confirmText="Confirm Reject"
-        placeholder="Write details (what is missing, reference number, remarks)..."
+        placeholder="Specify what is missing, any reference numbers, or remarks…"
+        dependencyOptions={getHodOptionForStudent(selectedStudent)}
       />
 
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="pending"
         currentDepartment="nad"
         onClose={() => {
           setViewOpen(false);

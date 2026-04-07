@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useOutletContext } from "react-router-dom";
 import ConfirmModal from "../../Modal/ConfirmModal";
 import api from "../../../api/client";
@@ -35,6 +35,101 @@ function StatusBadge({ status }) {
     <span className={`${base} border-white/40 bg-white/10 text-white/80`}>
       {status}
     </span>
+  );
+}
+
+function HistoryCard({ item, hasOngoingApplication, isSubmitting, onReapply }) {
+  const [steps, setSteps] = useState([]);
+  const [overallStatus, setOverallStatus] = useState(item.status || "pending");
+
+  useEffect(() => {
+    const fetchSteps = async () => {
+      try {
+        const { data } = await api.get(`/student/request/${item._id || item.id}/steps`);
+        const itemSteps = data.steps || [];
+        setSteps(itemSteps);
+
+        const allApproved = itemSteps.every(s => s.status === "approved");
+        const anyRejected = itemSteps.some(s => s.status === "rejected");
+
+        if (allApproved && itemSteps.length > 0) setOverallStatus("approved");
+        else if (anyRejected) setOverallStatus("rejected");
+        else setOverallStatus("pending");
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchSteps();
+  }, [item._id, item.id]);
+
+  const rejectedStep = steps.find(s => s.status === "rejected");
+  const finalApproveDate = overallStatus === "approved" && steps.length > 0
+    ? new Date(Math.max(...steps.map(s => s.actionAt ? new Date(s.actionAt).getTime() : 0)))
+    : null;
+
+  return (
+    <div className="rounded-2xl border border-white/15 bg-white/5 p-6 text-white">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <h2 className="text-sm font-mono text-white/50 mb-1">ID: {item._id || item.id}</h2>
+          <p className="text-sm text-white/80">
+            Applied on {new Date(item.createdAt).toLocaleDateString()}
+          </p>
+        </div>
+
+        <StatusBadge status={overallStatus} />
+      </div>
+
+      {overallStatus === "pending" && (
+        <div className="mt-5 rounded-xl border border-amber-400/20 bg-amber-500/10 p-4">
+          <p className="text-sm text-amber-100">
+            Current Application is pending approvals. Check the Track section for details.
+          </p>
+        </div>
+      )}
+
+      {overallStatus === "rejected" && rejectedStep && (
+        <div className="mt-5 rounded-xl border border-rose-400/20 bg-rose-500/10 p-4">
+          <p className="text-sm font-medium text-rose-200">
+            Rejected by: {rejectedStep.unitLabel || rejectedStep.unitCode}
+          </p>
+          <p className="mt-2 text-sm text-rose-100/90">
+            Reason: {rejectedStep.rejectionReason || "No reason provided"}
+          </p>
+          {rejectedStep.rejectionDescription && (
+            <p className="mt-1 text-sm text-rose-100/70">
+              Details: {rejectedStep.rejectionDescription}
+            </p>
+          )}
+        </div>
+      )}
+
+      {overallStatus === "rejected" && !hasOngoingApplication && (
+        <div className="mt-4">
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={() => onReapply(item)}
+            className={`rounded-xl px-4 py-2 text-sm font-semibold text-white ${isSubmitting ? "bg-blue-600/50 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+          >
+            {isSubmitting ? "Reapplying..." : "Reapply"}
+          </button>
+        </div>
+      )}
+
+      {overallStatus === "approved" && (
+        <div className="mt-5 rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-4">
+          <p className="text-sm text-emerald-100 font-medium">
+            Application completed successfully. All dues are cleared!
+          </p>
+          {finalApproveDate && finalApproveDate.getTime() > 0 && (
+            <p className="mt-2 text-xs text-emerald-200/70 block">
+              Completed on: {finalApproveDate.toLocaleString("en-IN", { dateStyle: "long", timeStyle: "short" })}
+            </p>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -81,73 +176,18 @@ export default function StudentHistory() {
           </div>
         )}
 
-        {displayApplications.map((item) => {
-          // Find if there's a rejected step to display reasons
-          const rejectedStep = item.steps?.find(s => s.status === 'rejected');
-
-          return (
-            <div
-              key={item._id || item.id}
-              className="rounded-2xl border border-white/15 bg-white/5 p-6 text-white"
-            >
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <h2 className="text-sm font-mono text-white/50 mb-1">ID: {item._id || item.id}</h2>
-                  <p className="text-sm text-white/80">
-                    Applied on {new Date(item.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-
-                <StatusBadge status={item.status} />
-              </div>
-
-              {item.status === "pending" && (
-                <div className="mt-5 rounded-xl border border-amber-400/20 bg-amber-500/10 p-4">
-                  <p className="text-sm text-amber-100">
-                    Current Application is pending approvals.
-                    Check the Track section for details.
-                  </p>
-                </div>
-              )}
-
-              {item.status === "rejected" && rejectedStep && (
-                <div className="mt-5 rounded-xl border border-rose-400/20 bg-rose-500/10 p-4">
-                  <p className="text-sm font-medium text-rose-200">
-                    Rejected by: {rejectedStep.departmentName}
-                  </p>
-                  <p className="mt-2 text-sm text-rose-100/90">
-                    Reason: {rejectedStep.remarks || "No reason provided"}
-                  </p>
-                </div>
-              )}
-
-              {item.status === "rejected" && !hasOngoingApplication && (
-                <div className="mt-4">
-                  <button
-                    type="button"
-                    disabled={isSubmitting}
-                    onClick={() => {
-                      setReapplyTarget(item);
-                      setConfirmOpen(true);
-                    }}
-                    className={`rounded-xl px-4 py-2 text-sm font-semibold text-white ${isSubmitting ? "bg-blue-600/50 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"
-                      }`}
-                  >
-                    {isSubmitting ? "Reapplying..." : "Reapply"}
-                  </button>
-                </div>
-              )}
-
-              {item.status === "approved" && (
-                <div className="mt-5 rounded-xl border border-emerald-400/20 bg-emerald-500/10 p-4">
-                  <p className="text-sm text-emerald-100 font-medium">
-                    Application completed successfully. All dues are cleared!
-                  </p>
-                </div>
-              )}
-            </div>
-          );
-        })}
+        {displayApplications.map((item) => (
+          <HistoryCard
+            key={item._id || item.id}
+            item={item}
+            hasOngoingApplication={hasOngoingApplication}
+            isSubmitting={isSubmitting}
+            onReapply={(target) => {
+              setReapplyTarget(target);
+              setConfirmOpen(true);
+            }}
+          />
+        ))}
       </div>
 
       <ConfirmModal

@@ -75,9 +75,9 @@ import RejectModal from "../../Modal/RejectModal";
 import ViewDetailsModal from "../../Modal/ViewDetailsModal";
 
 const ADMIN_REASONS = [
-  { value: "guest_house", label: "Guest House charges pending (room/stay fees)", requiresText: true },
-  { value: "transport", label: "Transport dues pending (bus related)", requiresText: true },
-  { value: "misc", label: "Miscellaneous", requiresText: true },
+  { value: "guest_house", label: "Guest House charges pending (room/stay fees)" },
+  { value: "transport", label: "Transport dues pending (bus related)" },
+  { value: "misc", label: "Miscellaneous" },
 ];
 
 export default function AdministrationPending() {
@@ -167,21 +167,21 @@ export default function AdministrationPending() {
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
-        onConfirm={(finalReason) => {
-          rejectStudent(selectedStudent, finalReason);
+        onConfirm={(reason, description, restartFrom) => {
+          rejectStudent(selectedStudent, reason, description, restartFrom);
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
         reasons={ADMIN_REASONS}
-        title="Reject Request"
+        title="Reject Administration Request"
         confirmText="Confirm Reject"
-        placeholder="Write details (type of due, amount, reference, remarks)..."
+        placeholder="Specify type of due, amount, reference, or remarks…"
       />
 
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="pending"
+        currentDepartment="administration"
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

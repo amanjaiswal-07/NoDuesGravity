@@ -86,12 +86,14 @@ export default function ApprovedRequests({
   const [search, setSearch] = useState("");
   const [selectedIds, setSelectedIds] = useState([]);
 
+  const validData = data.filter((s) => s && s.id && s.name && s.roll);
+
   const filteredData = useMemo(() => {
     const query = search.trim().toLowerCase();
 
-    if (!query) return data;
+    if (!query) return validData;
 
-    return data.filter((s) => {
+    return validData.filter((s) => {
       const name = s.name?.toLowerCase() || "";
       const email = s.email?.toLowerCase() || "";
       const roll = s.roll?.toLowerCase() || "";
@@ -102,7 +104,7 @@ export default function ApprovedRequests({
         roll.includes(query)
       );
     });
-  }, [data, search]);
+  }, [validData, search]);
 
   const visibleIds = filteredData.map((s) => s.id);
   const allVisibleSelected =
@@ -166,7 +168,7 @@ export default function ApprovedRequests({
       <div className="space-y-4">
         {filteredData.length === 0 ? (
           <EmptyState
-            text={data.length === 0 ? "No approved requests" : "No matching students found"}
+            text={validData.length === 0 ? "No approved requests" : "No matching students found"}
           />
         ) : (
           filteredData.map((s, idx) => (

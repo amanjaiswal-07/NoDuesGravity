@@ -46,11 +46,12 @@ export default function WardenApproved() {
               setRejectOpen(false);
               setSelectedStudent(null);
             }}
-            onConfirm={(finalReason) => {
-              moveApprovedToRejected(selectedStudent, finalReason);
-              setRejectOpen(false);
-              setSelectedStudent(null);
-            }}
+            onConfirm={(reason, description, restartFrom) => {
+          if (!selectedStudent) return;
+          moveApprovedToRejected(selectedStudent, reason, description, restartFrom);
+          setRejectOpen(false);
+          setSelectedStudent(null);
+        }}
             reasons={WARDEN_REASONS}
             title="Move to Rejected"
             confirmText="Move"
@@ -58,9 +59,9 @@ export default function WardenApproved() {
           />
 
           <ViewDetailsModal
+        currentDepartment="warden"
             open={viewOpen}
             student={viewStudent}
-            status="approved"
             onClose={() => {
               setViewOpen(false);
               setViewStudent(null);

@@ -32,8 +32,8 @@
 //       <ViewDetailsModal
 //         open={viewOpen}
 //         student={viewStudent}
-//         status="rejected"
-//         rejectionReason={viewStudent?.rejectionReason || ""}
+//
+//
 //         onClose={closeView}
 //       />
 //     </>
@@ -128,10 +128,9 @@ export default function MedicalRejected() {
       />
 
       <ViewDetailsModal
+        currentDepartment="medical"
         open={viewOpen}
         student={viewStudent}
-        status="rejected"
-        rejectionReason={viewStudent?.rejectionReason || ""}
         onClose={closeView}
       />
     </>

@@ -10,8 +10,22 @@ const NAD_REASONS = [
   { value: "abc", label: "ABC ID not submitted / verified", requiresText: true },
   { value: "digilocker", label: "DigiLocker marksheets not fetched / verified", requiresText: true },
   { value: "admission_docs", label: "Required admission documents pending / incomplete", requiresText: true },
+  { value: "approval_was_mistake", label: "Approval was made in error", requiresText: true },
   { value: "misc", label: "Miscellaneous", requiresText: true },
 ];
+
+const BRANCH_TO_HOD = {
+  CSE: { value: "hod_cse", label: "HOD - CSE" },
+  ECE: { value: "hod_ece", label: "HOD - ECE" },
+  CCE: { value: "hod_cce", label: "HOD - CCE" },
+  MECH: { value: "hod_mech", label: "HOD - MECH" },
+};
+
+function getHodOptionForStudent(student) {
+  const branch = (student?.branch || "").toUpperCase();
+  const hod = BRANCH_TO_HOD[branch];
+  return hod ? [hod] : Object.values(BRANCH_TO_HOD);
+}
 
 export default function NadApproved() {
   const { approved, moveApprovedToRejected } = useOutletContext();
@@ -27,43 +41,32 @@ export default function NadApproved() {
       <ApprovedRequests
         title="NAD Cell - Approved Requests"
         data={approved}
-        onMoveToRejected={(s) => {
-          setSelectedStudent(s);
-          setRejectOpen(true);
-        }}
-        onView={(s) => {
-          setViewStudent(s);
-          setViewOpen(true);
-        }}
+        onMoveToRejected={(s) => { setSelectedStudent(s); setRejectOpen(true); }}
+        onView={(s) => { setViewStudent(s); setViewOpen(true); }}
       />
 
       <RejectModal
         open={rejectOpen}
         student={selectedStudent}
-        onClose={() => {
-          setRejectOpen(false);
-          setSelectedStudent(null);
-        }}
-        onConfirm={(finalReason) => {
-          moveApprovedToRejected(selectedStudent, finalReason);
+        onClose={() => { setRejectOpen(false); setSelectedStudent(null); }}
+        onConfirm={(reason, description, restartFrom) => {
+          if (!selectedStudent) return;
+          moveApprovedToRejected(selectedStudent, reason, description, restartFrom);
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
         reasons={NAD_REASONS}
+        dependencyOptions={getHodOptionForStudent(selectedStudent)}
         title="Move to Rejected"
-        confirmText="Move"
+        confirmText="Move to Rejected"
         placeholder="Write details (what is missing, reference number, remarks)..."
       />
 
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="approved"
         currentDepartment="nad"
-        onClose={() => {
-          setViewOpen(false);
-          setViewStudent(null);
-        }}
+        onClose={() => { setViewOpen(false); setViewStudent(null); }}
       />
     </>
   );

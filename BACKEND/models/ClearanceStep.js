@@ -31,7 +31,13 @@ const clearanceStepSchema = new mongoose.Schema(
         // ── Staff Action ──────────────────────────────────────────────────────────
         actionBy: { type: String, default: '' },        // staff email
         actionAt: { type: Date },
-        rejectionReason: { type: String, default: '' },
+        rejectionReason: { type: String, default: '' },      // e.g. "Instrument issued"
+        rejectionDescription: { type: String, default: '' }, // free-text officer explanation
+        rejectedAt: { type: Date },                          // when rejection happened
+
+        // For HOD/NAD/Store/Accounts: which upstream units should reset on reapply
+        // e.g. ['cse_lab_1', 'library_librarian'] — chosen by the officer at reject time
+        restartFrom: { type: [String], default: [] },
 
         // ── Student Reply (after rejection) ───────────────────────────────────────
         studentReply: { type: String, default: '' },

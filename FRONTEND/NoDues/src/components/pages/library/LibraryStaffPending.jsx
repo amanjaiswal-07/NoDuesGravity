@@ -171,8 +171,8 @@ export default function LibraryStaffPendingPage() {
     setRejectOpen(true);
   };
 
-  const handleConfirmReject = (finalReason) => {
-    if (rejectSelected) staffReject(rejectSelected, finalReason);
+  const handleConfirmReject = (reason, description, restartFrom) => {
+    if (rejectSelected) staffReject(rejectSelected, reason, description, restartFrom);
     setRejectOpen(false);
     setRejectSelected(null);
   };
@@ -262,8 +262,7 @@ export default function LibraryStaffPendingPage() {
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="pending"
-        showLibraryFields={true}
+        currentDepartment="library_staff"
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

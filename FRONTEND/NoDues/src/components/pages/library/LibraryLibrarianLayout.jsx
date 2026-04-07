@@ -13,6 +13,8 @@ export default function LibraryLibrarianLayout() {
             librarianRejected: contextData.rejected,
             librarianApprove: contextData.approveStudent,
             librarianReject: contextData.rejectStudent,
+            librarianMoveApprovedToRejected: contextData.moveApprovedToRejected,
+            librarianMoveRejectedToApproved: contextData.moveRejectedToApproved,
           }}
         />
       )}

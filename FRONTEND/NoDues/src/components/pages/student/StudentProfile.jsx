@@ -4,6 +4,49 @@ import api from "../../../api/client";
 import ConfirmModal from "../../Modal/ConfirmModal";
 import FileViewerModal from "../../Modal/FileViewerModal";
 
+// ── Validation Alert Popup ──────────────────────────────────────────────────────
+function ValidationAlertModal({ errors, onClose }) {
+  if (!errors || errors.length === 0) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-4">
+      <div className="w-full max-w-md rounded-2xl border border-red-400/30 bg-neutral-900 shadow-2xl">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <div className="flex items-center gap-2">
+            <span className="text-lg">⚠️</span>
+            <h2 className="text-base font-semibold text-red-300">Please fix the following errors</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="text-white/40 hover:text-white/80 text-xl leading-none"
+          >&times;</button>
+        </div>
+        {/* Error List */}
+        <div className="px-5 py-4 space-y-2">
+          {errors.map((err, i) => (
+            <div
+              key={i}
+              className="flex items-start gap-2.5 rounded-lg border border-red-400/20 bg-red-500/10 px-3 py-2.5"
+            >
+              <span className="mt-0.5 shrink-0 text-red-400 text-sm">✕</span>
+              <p className="text-sm text-red-200">{err}</p>
+            </div>
+          ))}
+        </div>
+        {/* Footer */}
+        <div className="flex justify-end border-t border-white/10 px-5 py-3">
+          <button
+            onClick={onClose}
+            className="rounded-xl bg-red-500/20 border border-red-400/30 px-5 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/30 transition"
+          >
+            Fix Errors
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const HOSTELS = ["BH1", "BH2", "BH3", "BH4", "BH5", "GH"];
 
 const PLACEMENT_STATUSES = [
@@ -225,6 +268,7 @@ export default function StudentProfile() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [validationErrors, setValidationErrors] = useState([]);
 
   // Safe field setter — respects locked state; handles club role side-effects
   const setField = useCallback((key, value) => {
@@ -273,7 +317,85 @@ export default function StudentProfile() {
     return Boolean(basicOk && docsOk && roleOk && placementOk && declarationOk);
   }, [form, isHigherStudies, savedProfile]);
 
+  /**
+   * Derive admission year from roll number.
+   * Format: 23UCS719 → year prefix = 23 → 2023
+   */
+  const admissionYear = useMemo(() => {
+    const roll = form.rollNo || "";
+    const match = roll.match(/^(\d{2})/);
+    if (match) {
+      const prefix = parseInt(match[1], 10);
+      return 2000 + prefix;
+    }
+    return 2018; // safe fallback
+  }, [form.rollNo]);
+
+  const todayStr = todayISO();
+
+  /**
+   * Client-side field validation before sending to server.
+   * Collects ALL errors and returns them as an array.
+   */
+  const validateProfileForm = () => {
+    const errors = [];
+    const phoneRegex = /^\d{10}$/;
+    const alphaSpaceRegex = /^[A-Za-z\s]+$/;
+    const ifscRegex = /^[A-Z]{4}0[A-Z0-9]{6}$/;
+    const bankAccRegex = /^\d{9,18}$/;
+    const minDate = `${admissionYear}-01-01`;
+
+    if (form.phone && !phoneRegex.test(form.phone.trim()))
+      errors.push("Phone number must be exactly 10 digits (numeric only).");
+    if (form.studentContactNumber && !phoneRegex.test(form.studentContactNumber.trim()))
+      errors.push("Student contact number must be exactly 10 digits (numeric only).");
+    if (form.fatherMobileNumber && !phoneRegex.test(form.fatherMobileNumber.trim()))
+      errors.push("Father's mobile number must be exactly 10 digits (numeric only).");
+
+    if (form.libraryEmailDate && form.libraryEmailDate > todayStr)
+      errors.push("Library email sent date cannot be in the future.");
+    if (form.libraryEmailDate && form.libraryEmailDate < minDate)
+      errors.push(`Library email sent date cannot be before your admission year (${admissionYear}).`);
+    if (form.tpcEmailDate && form.tpcEmailDate > todayStr)
+      errors.push("TPC email sent date cannot be in the future.");
+    if (form.tpcEmailDate && form.tpcEmailDate < minDate)
+      errors.push(`TPC email sent date cannot be before your admission year (${admissionYear}).`);
+
+    if (form.accountHolderName && !alphaSpaceRegex.test(form.accountHolderName.trim()))
+      errors.push("Account holder name must contain only alphabets and spaces.");
+    if (form.accountHolderName && form.accountHolderName.trim().length < 2)
+      errors.push("Account holder name is too short (minimum 2 characters).");
+
+    if (form.fatherName && !alphaSpaceRegex.test(form.fatherName.trim()))
+      errors.push("Father's name must contain only alphabets and spaces.");
+    if (form.fatherName && form.fatherName.trim().length < 2)
+      errors.push("Father's name is too short (minimum 2 characters).");
+
+    if (form.bankAccountNumber && !bankAccRegex.test(form.bankAccountNumber.trim()))
+      errors.push("Bank account number must be numeric and between 9–18 digits.");
+    if (form.bankName && !alphaSpaceRegex.test(form.bankName.trim()))
+      errors.push("Bank name must contain only alphabets and spaces.");
+    if (form.ifscCode && !ifscRegex.test(form.ifscCode.trim().toUpperCase()))
+      errors.push("IFSC code is invalid. Expected format: SBIN0001234 (4 letters + 0 + 6 alphanumeric).");
+
+    const donation = parseFloat(form.donationAmount);
+    if (form.donationAmount !== "" && (isNaN(donation) || donation < 0))
+      errors.push("Donation amount must be a non-negative number (0 or more).");
+    if (form.correspondenceAddress && form.correspondenceAddress.trim().length < 10)
+      errors.push("Correspondence address is too short (minimum 10 characters).");
+
+    return errors;
+  };
+
   const handleConfirmSave = async () => {
+    // Collect ALL validation errors and show popup if any exist
+    const errors = validateProfileForm();
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setConfirmOpen(false);
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       setErrorMsg("");
@@ -328,6 +450,11 @@ export default function StudentProfile() {
 
   return (
     <>
+      {/* Validation popup — shown when Save Profile fails field checks */}
+      <ValidationAlertModal
+        errors={validationErrors}
+        onClose={() => setValidationErrors([])}
+      />
       <div className="space-y-6">
 
         {/* ── Header ── */}
@@ -436,15 +563,21 @@ export default function StudentProfile() {
             />
           </div>
           <div className="mt-5 max-w-md">
-            <InputField
-              label="Library Email Sent Date *"
-              type="date"
-              value={form.libraryEmailDate}
-              disabled={isLocked}
-              onChange={(e) => setField("libraryEmailDate", e.target.value)}
-            />
+            <div>
+              <label className="block text-sm text-white/80">Library Email Sent Date *</label>
+              <input
+                type="date"
+                value={form.libraryEmailDate}
+                disabled={isLocked}
+                onChange={(e) => setField("libraryEmailDate", e.target.value)}
+                min={`${admissionYear}-01-01`}
+                max={todayStr}
+                className={`mt-2 w-full rounded-xl border border-white/15 bg-neutral-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500 ${isLocked ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+              />
+            </div>
             <WarningText>
-              BTP report signed by supervisor must be emailed to circulation.library@lnmiit.ac.in before this date.
+              Date when you emailed your BTP report to circulation.library@lnmiit.ac.in. Must be between your admission year and today.
             </WarningText>
           </div>
         </SectionCard>
@@ -502,13 +635,19 @@ export default function StudentProfile() {
               onChange={(e) => setField("placementStatus", e.target.value)}
               options={PLACEMENT_STATUSES}
             />
-            <InputField
-              label="TPC Email Sent Date *"
-              type="date"
-              value={form.tpcEmailDate}
-              disabled={isLocked}
-              onChange={(e) => setField("tpcEmailDate", e.target.value)}
-            />
+            <div>
+              <label className="block text-sm text-white/80">TPC Email Sent Date *</label>
+              <input
+                type="date"
+                value={form.tpcEmailDate}
+                disabled={isLocked}
+                onChange={(e) => setField("tpcEmailDate", e.target.value)}
+                min={`${admissionYear}-01-01`}
+                max={todayStr}
+                className={`mt-2 w-full rounded-xl border border-white/15 bg-neutral-950 px-4 py-3 text-sm text-white outline-none focus:border-blue-500 ${isLocked ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+              />
+            </div>
           </div>
           <WarningText>Email all placement details to info.tpc@lnmiit.ac.in. Incorrect date may cause rejection.</WarningText>
 

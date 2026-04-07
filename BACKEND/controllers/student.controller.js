@@ -28,7 +28,7 @@ const StepActionLog = require('../models/StepActionLog');
 const EligibleStudent = require('../models/EligibleStudent');
 const cloudinary = require('../config/cloudinary');
 const { createClearanceSteps } = require('../services/workflowService');
-const { syncRequestStatus } = require('../services/dependencyEngine');
+const { syncRequestStatus, relockDependents } = require('../services/dependencyEngine');
 
 // ── Cloudinary Utilities ──────────────────────────────────────────────────────
 
@@ -403,7 +403,13 @@ async function getStudentFile(req, res) {
         // fetchFollowingRedirects() handles 301/302 that Cloudinary CDN issues.
         const proxyRes = await fetchFollowingRedirects(fileUrl);
 
-        const contentType = proxyRes.headers['content-type'] || 'application/octet-stream';
+        // Determine correct content-type.
+        // Cloudinary often returns 'application/octet-stream' for PDFs stored in raw mode,
+        // so we override based on URL extension rather than trusting the upstream header.
+        let contentType = proxyRes.headers['content-type'] || 'application/octet-stream';
+        if (fileUrl.toLowerCase().endsWith('.pdf') || contentType === 'application/octet-stream') {
+            contentType = 'application/pdf';
+        }
 
         // If Cloudinary returned HTML it means an error page (bad URL, not found, etc.)
         if (contentType.startsWith('text/html')) {
@@ -441,7 +447,18 @@ async function applyForNoDues(req, res) {
             studentEmail: req.user.email,
             status: { $ne: 'approved' },
         });
-        if (existing) return res.status(400).json({ error: 'You already have an active application.' });
+
+        if (existing) {
+            // Check if the request has any clearance steps (steps may have been manually deleted)
+            const stepCount = await ClearanceStep.countDocuments({ requestId: existing._id });
+            if (stepCount === 0) {
+                // Orphaned request — no steps exist, safe to auto-delete and allow fresh apply
+                console.warn(`⚠ Orphaned NoDuesRequest detected (no steps). Auto-deleting: ${existing._id}`);
+                await NoDuesRequest.deleteOne({ _id: existing._id });
+            } else {
+                return res.status(400).json({ error: 'You already have an active application.' });
+            }
+        }
 
         const request = await NoDuesRequest.create({
             studentEmail: student.email,
@@ -475,6 +492,14 @@ async function getActiveRequest(req, res) {
     try {
         const request = await NoDuesRequest.findOne({ studentEmail: req.user.email }).sort({ createdAt: -1 });
         if (!request) return res.status(404).json({ error: 'No active request found' });
+
+        // If the request has no clearance steps it is orphaned (manually deleted from DB).
+        // Treat it as if no request exists so the student can reapply cleanly.
+        const stepCount = await ClearanceStep.countDocuments({ requestId: request._id });
+        if (stepCount === 0 && request.status !== 'approved') {
+            return res.status(404).json({ error: 'No active request found' });
+        }
+
         res.json({ request });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -523,6 +548,106 @@ async function replyToRejectedStep(req, res) {
     }
 }
 
+async function reapply(req, res) {
+    try {
+        // Find most-recent active (non-fully-approved) request for this student
+        const request = await NoDuesRequest.findOne({
+            studentEmail: req.user.email,
+            status: { $in: ['action_required', 'in_progress'] },
+        }).sort({ createdAt: -1 });
+
+        if (!request) {
+            return res.status(404).json({ error: 'No reapply-able request found. All done or no application exists.' });
+        }
+
+        const allSteps = await ClearanceStep.find({ requestId: request._id });
+
+        const rejectedSteps = allSteps.filter(s => s.status === 'rejected');
+        if (rejectedSteps.length === 0) {
+            return res.status(400).json({ error: 'No rejected steps found. Nothing to reapply.' });
+        }
+
+        // Collect all unit codes that should be reset to 'pending'
+        const toResetPending = new Set();
+        // Collect all unit codes that should go back to 'locked' (re-locked because their prerequisite is being reset)
+        const toRelock = new Set();
+
+        for (const step of rejectedSteps) {
+            if (step.restartFrom && step.restartFrom.length > 0) {
+                // HOD / NAD / Store / Accounts specified which upstream deps to restart
+                step.restartFrom.forEach(code => toResetPending.add(code));
+                // The rejected step itself goes back to locked (it will unlock naturally when deps re-approve)
+                toRelock.add(step.unitCode);
+            } else {
+                // Simple case: reset only the rejected step itself
+                toResetPending.add(step.unitCode);
+            }
+
+            // Special rule: if library_librarian is rejected → restart full library chain
+            if (step.unitCode === 'library_librarian') {
+                toResetPending.add('library_staff');
+                // library_librarian will re-lock because library_staff is being reset
+                toRelock.add('library_librarian');
+                toResetPending.delete('library_librarian'); // not pending, will be locked
+            }
+        }
+
+        // Post-loop rule: if library_staff is being reset (e.g. HOD selected Library as faulty),
+        // also relock library_librarian so the full 2-step chain restarts from scratch.
+        // relockDependents skips 'approved' steps, so we must do this explicitly here.
+        if (toResetPending.has('library_staff')) {
+            toRelock.add('library_librarian');
+            toResetPending.delete('library_librarian'); // ensure it stays in relock, not pending
+        }
+
+        const logs = [];
+
+        // Apply resets
+        for (const s of allSteps) {
+            if (toResetPending.has(s.unitCode)) {
+                s.status = 'pending';
+                // Clear old rejection data so the step looks fresh to the department
+                s.rejectionReason = '';
+                s.rejectionDescription = '';
+                s.rejectedAt = undefined;
+                s.restartFrom = [];
+                s.actionBy = '';
+                s.actionAt = undefined;
+                await s.save();
+                logs.push({ stepId: s._id, requestId: request._id, action: 'reopened', actorEmail: 'system', actorRole: 'system', note: 'Reset by student reapply' });
+            } else if (toRelock.has(s.unitCode)) {
+                s.status = 'locked';
+                s.rejectionReason = '';
+                s.rejectionDescription = '';
+                s.rejectedAt = undefined;
+                s.restartFrom = [];
+                s.actionBy = '';
+                s.actionAt = undefined;
+                await s.save();
+                logs.push({ stepId: s._id, requestId: request._id, action: 'reopened', actorEmail: 'system', actorRole: 'system', note: 'Re-locked by reapply — awaiting prerequisites' });
+            }
+        }
+
+        if (logs.length > 0) await StepActionLog.insertMany(logs);
+
+        // Cascade: re-lock any steps that now have unsatisfied prerequisites
+        // (e.g. NAD/Store/Accounts must re-lock when HOD is locked)
+        await relockDependents(request._id);
+
+        // Sync request status back to in_progress
+        await syncRequestStatus(request._id);
+
+        res.json({
+            message: 'Reapply successful. The relevant steps have been reset.',
+            resetUnits: [...toResetPending],
+            reLockedUnits: [...toRelock],
+        });
+    } catch (err) {
+        console.error('reapply error:', err);
+        res.status(500).json({ error: err.message });
+    }
+}
+
 module.exports = {
     getProfile,
     updateProfile,
@@ -531,4 +656,5 @@ module.exports = {
     getActiveRequest,
     getRequestSteps,
     replyToRejectedStep,
+    reapply,
 };

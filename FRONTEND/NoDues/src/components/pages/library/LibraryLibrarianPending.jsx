@@ -193,8 +193,8 @@ export default function LibraryLibrarianPending() {
           setRejectOpen(false);
           setRejectSelected(null);
         }}
-        onConfirm={(finalReason) => {
-          if (rejectSelected) librarianReject(rejectSelected, finalReason);
+        onConfirm={(reason, description, restartFrom) => {
+          if (rejectSelected) librarianReject(rejectSelected, reason, description, restartFrom);
           setRejectOpen(false);
           setRejectSelected(null);
         }}
@@ -207,8 +207,7 @@ export default function LibraryLibrarianPending() {
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="pending"
-        showLibraryFields={true}
+        currentDepartment="library_librarian"
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

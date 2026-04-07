@@ -103,4 +103,84 @@ async function syncRequestStatus(requestId, steps) {
     return newStatus;
 }
 
-module.exports = { unlockDependents, syncRequestStatus };
+/**
+ * Re-locks any pending or previously-approved steps whose dependencies are
+ * no longer fully satisfied.  Should be called after a step is un-approved
+ * (rejected from approved, or reset via reapply).
+ *
+ * Cascades: if re-locking step A causes step B (which depends on A) to also
+ * become invalid, B is re-locked too.
+ *
+ * @param {string|ObjectId} requestId
+ * @returns {Promise<string[]>} - list of unitCodes that were re-locked
+ */
+async function relockDependents(requestId) {
+    const allSteps = await ClearanceStep.find({ requestId });
+
+    // Build a mutable status map so we can track cascading locks
+    const statusMap = {};
+    for (const s of allSteps) {
+        statusMap[s.unitCode] = s.status;
+    }
+
+    const toRelock = new Set();
+    let changed = true;
+
+    // Keep iterating until no more steps need locking (cascade)
+    while (changed) {
+        changed = false;
+        for (const step of allSteps) {
+            if (step.status === 'approved') continue; // approved stays approved
+            if (step.status === 'locked') continue;   // already locked
+            if (toRelock.has(step.unitCode)) continue; // already queued
+            if (step.dependsOn.length === 0) continue; // no deps, never lock from here
+
+            // If ANY dependency is not approved (pending / locked / rejected / being relocked)
+            const depsAllApproved = step.dependsOn.every(
+                dep => statusMap[dep] === 'approved' && !toRelock.has(dep)
+            );
+
+            if (!depsAllApproved) {
+                toRelock.add(step.unitCode);
+                statusMap[step.unitCode] = 'locked'; // update map so cascade picks this up
+                changed = true;
+            }
+        }
+    }
+
+    if (toRelock.size === 0) return [];
+
+    // Re-lock them in DB
+    await ClearanceStep.updateMany(
+        { requestId, unitCode: { $in: [...toRelock] } },
+        {
+            $set: {
+                status: 'locked',
+                rejectionReason: '',
+                rejectionDescription: '',
+                rejectedAt: null,
+                restartFrom: [],
+                actionBy: '',
+                actionAt: null,
+            }
+        }
+    );
+
+    // Log re-lock events
+    const logs = allSteps
+        .filter(s => toRelock.has(s.unitCode))
+        .map(s => ({
+            stepId: s._id,
+            requestId,
+            action: 'relocked',
+            actorEmail: 'system',
+            actorRole: 'system',
+            note: `Re-locked because prerequisite(s) are no longer approved: [${s.dependsOn.join(', ')}]`,
+        }));
+
+    if (logs.length > 0) await StepActionLog.insertMany(logs);
+
+    return [...toRelock];
+}
+
+module.exports = { unlockDependents, relockDependents, syncRequestStatus };

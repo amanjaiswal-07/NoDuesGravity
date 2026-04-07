@@ -25,8 +25,8 @@
 //       <ViewDetailsModal
 //         open={viewOpen}
 //         student={viewStudent}
-//         status="rejected"
-//         rejectionReason={viewStudent?.rejectionReason || ""}
+//
+//
 //         onClose={() => {
 //           setViewOpen(false);
 //           setViewStudent(null);
@@ -118,10 +118,9 @@ export default function SportsRejected() {
       />
 
       <ViewDetailsModal
+        currentDepartment="sports"
         open={viewOpen}
         student={viewStudent}
-        status="rejected"
-        rejectionReason={viewStudent?.rejectionReason || ""}
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

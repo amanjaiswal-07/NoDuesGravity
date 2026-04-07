@@ -74,6 +74,14 @@ import ConfirmModal from "../../Modal/ConfirmModal";
 import RejectModal from "../../Modal/RejectModal";
 import ViewDetailsModal from "../../Modal/ViewDetailsModal";
 
+const MEDICAL_REASONS = [
+  { value: "instrument_issued", label: "Instrument issued — not returned / not cleared", requiresText: true },
+  { value: "wheelchair_issued", label: "Wheelchair issued — not returned / not cleared", requiresText: true },
+  { value: "idcard_missing", label: "Student ID card not submitted / not readable", requiresText: true },
+  { value: "doc_incomplete", label: "Medical documents incomplete or missing", requiresText: true },
+  { value: "misc", label: "Miscellaneous", requiresText: true },
+];
+
 export default function MedicalPending() {
   const { pending, approveStudent, rejectStudent } = useOutletContext();
 
@@ -99,9 +107,9 @@ export default function MedicalPending() {
     setSelectedStudent(null);
   };
 
-  const confirmReject = (finalReason) => {
+  const confirmReject = (reason, description, restartFrom) => {
     if (!selectedStudent) return;
-    rejectStudent(selectedStudent, finalReason);
+    rejectStudent(selectedStudent, reason, description, restartFrom);
     closeReject();
   };
 
@@ -179,12 +187,16 @@ export default function MedicalPending() {
         student={selectedStudent}
         onClose={closeReject}
         onConfirm={confirmReject}
+        reasons={MEDICAL_REASONS}
+        title="Reject Medical Clearance"
+        confirmText="Confirm Reject"
+        placeholder="Describe the issue (item name, quantity, remarks)..."
       />
 
       <ViewDetailsModal
         open={viewOpen}
         student={viewStudent}
-        status="pending"
+        currentDepartment="medical"
         onClose={closeView}
       />
     </>

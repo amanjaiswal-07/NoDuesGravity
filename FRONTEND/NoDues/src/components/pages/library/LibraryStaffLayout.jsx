@@ -21,6 +21,7 @@ export default function LibraryStaffLayout() {
             staffRejected: contextData.rejected,
             staffMoveToLibrarian: contextData.approveStudent,
             staffReject: contextData.rejectStudent,
+            moveRejectedToApproved: contextData.moveRejectedToApproved,
           }}
         />
       )}

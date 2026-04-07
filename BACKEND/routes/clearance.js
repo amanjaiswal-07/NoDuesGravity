@@ -29,5 +29,7 @@ router.delete('/:unitCode/access/:userId', clearanceController.removeDepartmentA
 
 // Details & History
 router.get('/:stepId/details', clearanceController.getStepDetails);
+router.get('/:stepId/full', clearanceController.getStepFull);
+router.get('/:stepId/file/:fieldName', clearanceController.getStepFile);
 
 module.exports = router;

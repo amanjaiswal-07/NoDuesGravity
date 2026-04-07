@@ -84,8 +84,9 @@ export default function LibraryLibrarianApproved() {
           setRejectOpen(false);
           setRejectSelected(null);
         }}
-        onConfirm={(finalReason) => {
-          if (rejectSelected) librarianMoveApprovedToRejected(rejectSelected, finalReason);
+        onConfirm={(reason, description, restartFrom) => {
+          if (!rejectSelected) return;
+          librarianMoveApprovedToRejected(rejectSelected, reason, description, restartFrom);
           setRejectOpen(false);
           setRejectSelected(null);
         }}
@@ -96,10 +97,9 @@ export default function LibraryLibrarianApproved() {
       />
 
       <ViewDetailsModal
+        currentDepartment="library_librarian"
         open={viewOpen}
         student={viewStudent}
-        status="approved"
-        showLibraryFields={true}
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

@@ -75,9 +75,9 @@ export default function useDepartmentData(unitCodes) {
                     api.get(`/clearance/rejected?unitCode=${code}`),
                 ]);
                 return {
-                    pending: (pRes.data.steps || []).map((s) => flattenStep(s, code)),
-                    approved: (aRes.data.steps || []).map((s) => flattenStep(s, code)),
-                    rejected: (rRes.data.steps || []).map((s) => flattenStep(s, code)),
+                    pending: (pRes.data.steps || []).filter((s) => s.requestId).map((s) => flattenStep(s, code)),
+                    approved: (aRes.data.steps || []).filter((s) => s.requestId).map((s) => flattenStep(s, code)),
+                    rejected: (rRes.data.steps || []).filter((s) => s.requestId).map((s) => flattenStep(s, code)),
                 };
             };
 
@@ -110,9 +110,9 @@ export default function useDepartmentData(unitCodes) {
         await fetchAll();
     }, [fetchAll]);
 
-    /** Reject a single step with a reason */
-    const rejectStep = useCallback(async (item, reason) => {
-        await api.post(`/clearance/${item.stepId}/reject`, { reason });
+    /** Reject a single step with a reason, description, and optional restartFrom array */
+    const rejectStep = useCallback(async (item, reason, description, restartFrom) => {
+        await api.post(`/clearance/${item.stepId}/reject`, { reason, description, restartFrom: restartFrom || [] });
         await fetchAll();
     }, [fetchAll]);
 

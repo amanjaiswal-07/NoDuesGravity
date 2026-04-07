@@ -55,9 +55,9 @@
 //       <ViewDetailsModal
 //         open={viewOpen}
 //         student={viewStudent}
-//         status="rejected"
-//         rejectionReason={viewStudent?.rejectionReason || ""}
-//         showPlacementFields={true}
+//
+//
+//
 //         onClose={() => {
 //           setViewOpen(false);
 //           setViewStudent(null);
@@ -149,11 +149,9 @@ export default function PlacementRejected() {
       />
 
       <ViewDetailsModal
+        currentDepartment="placement"
         open={viewOpen}
         student={viewStudent}
-        status="rejected"
-        rejectionReason={viewStudent?.rejectionReason || ""}
-        showPlacementFields={true}
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

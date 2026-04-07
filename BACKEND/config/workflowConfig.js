@@ -109,14 +109,26 @@ function getDependenciesForUnit(unitCode, branch) {
 function getApplicableUnitCodes(branch) {
     const b = branch.toUpperCase();
 
+    // Universal departments — every student regardless of branch
     const universal = [
         'medical', 'sports', 'lucs', 'warden', 'placement',
         'administration', 'library_staff', 'library_librarian',
         'store', 'nad', 'accounts',
-        ...CSE_LABS, ...ECE_LABS, ...MECH_LABS, ...PHYSICS_LABS,
     ];
 
-    // HOD only for the student's own branch
+    // ALL lab groups are required for ALL students.
+    // The only branch-specific difference: ece_lab_kundan is ONLY for ECE students.
+    const ECE_LABS_WITHOUT_KUNDAN = ECE_LABS.filter(code => code !== 'ece_lab_kundan');
+
+    const allLabs = [
+        ...CSE_LABS,
+        ...ECE_LABS_WITHOUT_KUNDAN, // ECE labs (minus kundan) — all branches
+        ...(b === 'ECE' ? ['ece_lab_kundan'] : []), // kundan ONLY for ECE
+        ...MECH_LABS,
+        ...PHYSICS_LABS,
+    ];
+
+    // HOD is branch-specific — student only goes to their own HOD
     const HOD_CODE = {
         CSE: 'hod_cse',
         CCE: 'hod_cce',
@@ -124,7 +136,7 @@ function getApplicableUnitCodes(branch) {
         MECH: 'hod_mech',
     }[b] || 'hod_cse';
 
-    return [...universal, HOD_CODE];
+    return [...universal, ...allLabs, HOD_CODE];
 }
 
 module.exports = {

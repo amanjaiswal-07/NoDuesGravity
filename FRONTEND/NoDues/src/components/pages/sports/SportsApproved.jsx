@@ -41,8 +41,9 @@ export default function SportsApproved() {
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
-        onConfirm={(finalReason) => {
-          moveApprovedToRejected(selectedStudent, finalReason);
+        onConfirm={(reason, description, restartFrom) => {
+          if (!selectedStudent) return;
+          moveApprovedToRejected(selectedStudent, reason, description, restartFrom);
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
@@ -53,9 +54,9 @@ export default function SportsApproved() {
       />
 
       <ViewDetailsModal
+        currentDepartment="sports"
         open={viewOpen}
         student={viewStudent}
-        status="approved"
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

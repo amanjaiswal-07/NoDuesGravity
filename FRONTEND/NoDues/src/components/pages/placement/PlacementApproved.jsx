@@ -89,8 +89,9 @@ export default function PlacementApproved() {
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
-        onConfirm={(finalReason) => {
-          moveApprovedToRejected(selectedStudent, finalReason);
+        onConfirm={(reason, description, restartFrom) => {
+          if (!selectedStudent) return;
+          moveApprovedToRejected(selectedStudent, reason, description, restartFrom);
           setRejectOpen(false);
           setSelectedStudent(null);
         }}
@@ -101,10 +102,9 @@ export default function PlacementApproved() {
       />
 
       <ViewDetailsModal
+        currentDepartment="placement"
         open={viewOpen}
         student={viewStudent}
-        status="approved"
-        showPlacementFields={true}
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);

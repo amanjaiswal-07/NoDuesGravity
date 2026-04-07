@@ -53,8 +53,8 @@
 //       <ViewDetailsModal
 //         open={viewOpen}
 //         student={viewStudent}
-//         status="rejected"
-//         rejectionReason={viewStudent?.rejectionReason || ""}
+//
+//
 //         onClose={() => {
 //           setViewOpen(false);
 //           setViewStudent(null);
@@ -146,10 +146,9 @@ export default function LUCSRejected() {
       />
 
       <ViewDetailsModal
+        currentDepartment="lucs"
         open={viewOpen}
         student={viewStudent}
-        status="rejected"
-        rejectionReason={viewStudent?.rejectionReason || ""}
         onClose={() => {
           setViewOpen(false);
           setViewStudent(null);
