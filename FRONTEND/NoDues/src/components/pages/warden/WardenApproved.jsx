@@ -53,7 +53,7 @@ export default function WardenApproved() {
           setSelectedStudent(null);
         }}
             reasons={WARDEN_REASONS}
-            title="Move to Rejected"
+            title="Move to On Hold"
             confirmText="Move"
             placeholder="Write details (item name, quantity, remarks)..."
           />

@@ -51,8 +51,8 @@
 //           setSelectedStudent(null);
 //         }}
 //         reasons={NAD_REASONS}
-//         title="Reject Request"
-//         confirmText="Confirm Reject"
+//         title="Put Request On Hold"
+//         confirmText="Confirm Hold"
 //         placeholder="Write details (what is missing, reference number, remarks)..."
 //       />
 
@@ -188,8 +188,8 @@ export default function NadPending() {
           setSelectedStudent(null);
         }}
         reasons={NAD_REASONS}
-        title="Reject NAD Request"
-        confirmText="Confirm Reject"
+        title="Put NAD Request"
+        confirmText="Confirm Hold"
         placeholder="Specify what is missing, any reference numbers, or remarks…"
         dependencyOptions={getHodOptionForStudent(selectedStudent)}
       />

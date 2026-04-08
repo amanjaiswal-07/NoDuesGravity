@@ -49,8 +49,8 @@
 //           setSelectedStudent(null);
 //         }}
 //         reasons={ADMIN_REASONS}
-//         title="Reject Request"
-//         confirmText="Confirm Reject"
+//         title="Put Request On Hold"
+//         confirmText="Confirm Hold"
 //         placeholder="Write details (type of due, amount, reference, remarks)..."
 //       />
 
@@ -173,8 +173,8 @@ export default function AdministrationPending() {
           setSelectedStudent(null);
         }}
         reasons={ADMIN_REASONS}
-        title="Reject Administration Request"
-        confirmText="Confirm Reject"
+        title="Put Administration Request"
+        confirmText="Confirm Hold"
         placeholder="Specify type of due, amount, reference, or remarks…"
       />
 

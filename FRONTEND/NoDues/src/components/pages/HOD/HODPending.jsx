@@ -95,8 +95,8 @@
 //           setSelectedStudent(null);
 //         }}
 //         reasons={HOD_REASONS}
-//         title="Reject Request"
-//         confirmText="Confirm Reject"
+//         title="Put Request On Hold"
+//         confirmText="Confirm Hold"
 //         placeholder="Write details (which clearance is pending, remarks, notes)..."
 //       />
 
@@ -220,8 +220,8 @@ export default function HODPending() {
           setSelectedStudent(null);
         }}
         reasons={HOD_REASONS}
-        title="Reject HOD Clearance"
-        confirmText="Confirm Reject"
+        title="Put HOD Clearance"
+        confirmText="Confirm Hold"
         placeholder="Specify which clearance is pending and why the HOD cannot approve yet…"
         dependencyOptions={HOD_DEP_OPTIONS}
         dependenciesRequired={false}

@@ -96,7 +96,7 @@ export default function PlacementApproved() {
           setSelectedStudent(null);
         }}
         reasons={PLACEMENT_REASONS}
-        title="Move to Rejected"
+        title="Move to On Hold"
         confirmText="Move"
         placeholder="Write details (what is missing, file name, remarks)..."
       />

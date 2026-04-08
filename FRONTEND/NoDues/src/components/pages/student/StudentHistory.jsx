@@ -91,7 +91,7 @@ function HistoryCard({ item, hasOngoingApplication, isSubmitting, onReapply }) {
       {overallStatus === "rejected" && rejectedStep && (
         <div className="mt-5 rounded-xl border border-rose-400/20 bg-rose-500/10 p-4">
           <p className="text-sm font-medium text-rose-200">
-            Rejected by: {rejectedStep.unitLabel || rejectedStep.unitCode}
+            Placed on hold by: {rejectedStep.unitLabel || rejectedStep.unitCode}
           </p>
           <p className="mt-2 text-sm text-rose-100/90">
             Reason: {rejectedStep.rejectionReason || "No reason provided"}

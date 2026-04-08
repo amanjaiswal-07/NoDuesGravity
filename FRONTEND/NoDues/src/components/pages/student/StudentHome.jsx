@@ -43,11 +43,10 @@ export default function StudentHome() {
             type="button"
             disabled={!profileComplete}
             onClick={() => navigate("/student/apply")}
-            className={`mt-4 rounded-xl px-4 py-2 text-sm font-medium text-white ${
-              profileComplete
+            className={`mt-4 rounded-xl px-4 py-2 text-sm font-medium text-white ${profileComplete
                 ? "bg-blue-600 hover:bg-blue-700"
                 : "cursor-not-allowed bg-blue-600/40"
-            }`}
+              }`}
           >
             Go to Apply
           </button>
@@ -70,7 +69,7 @@ export default function StudentHome() {
         </div>
 
         <div className="rounded-2xl border border-white/15 bg-white/5 p-6 text-white">
-          <p className="text-sm text-white/60">Rejected Applications</p>
+          <p className="text-sm text-white/60">Applications On Hold</p>
           <p className="mt-2 text-lg font-semibold">{rejectedCount}</p>
           <button
             type="button"

@@ -53,8 +53,8 @@
 //               setSelectedStudent(null);
 //             }}
 //             reasons={WARDEN_REASONS}
-//             title="Reject Request"
-//             confirmText="Confirm Reject"
+//             title="Put Request On Hold"
+//             confirmText="Confirm Hold"
 //             placeholder="Write details (item name, quantity, remarks)..."
 //           />
 
@@ -194,8 +194,8 @@ export default function WardenPending() {
               setSelectedStudent(null);
             }}
             reasons={WARDEN_REASONS}
-            title="Reject Request"
-            confirmText="Confirm Reject"
+            title="Put Request On Hold"
+            confirmText="Confirm Hold"
             placeholder="Write details (item name, quantity, remarks)..."
           />
 

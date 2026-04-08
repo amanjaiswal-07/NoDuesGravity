@@ -84,8 +84,8 @@
 //           setSelectedStudent(null);
 //         }}
 //         reasons={LUCS_REASONS}
-//         title="Reject Request"
-//         confirmText="Confirm Reject"
+//         title="Put Request On Hold"
+//         confirmText="Confirm Hold"
 //         placeholder="Write details (GPU username, issue, remarks)..."
 //       />
 
@@ -215,8 +215,8 @@ export default function LUCSPending() {
           setSelectedStudent(null);
         }}
         reasons={LUCS_REASONS}
-        title="Reject Request"
-        confirmText="Confirm Reject"
+        title="Put Request On Hold"
+        confirmText="Confirm Hold"
         placeholder="Write details (GPU username, issue, remarks)..."
       />
 

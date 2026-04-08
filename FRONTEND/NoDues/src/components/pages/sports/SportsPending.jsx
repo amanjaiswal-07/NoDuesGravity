@@ -48,8 +48,8 @@
 //           setSelectedStudent(null);
 //         }}
 //         reasons={SPORTS_REASONS}
-//         title="Reject Request"
-//         confirmText="Confirm Reject"
+//         title="Put Request On Hold"
+//         confirmText="Confirm Hold"
 //         placeholder="Write miscellaneous reason..."
 //       />
 
@@ -171,8 +171,8 @@ export default function SportsPending() {
           setSelectedStudent(null);
         }}
         reasons={SPORTS_REASONS}
-        title="Reject Request"
-        confirmText="Confirm Reject"
+        title="Put Request On Hold"
+        confirmText="Confirm Hold"
         placeholder="Write miscellaneous reason..."
       />
 

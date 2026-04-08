@@ -129,8 +129,8 @@ export default function StorePending() {
           setSelectedStudent(null);
         }}
         reasons={STORE_REASONS}
-        title="Reject Store Request"
-        confirmText="Confirm Reject"
+        title="Put Store Request"
+        confirmText="Confirm Hold"
         placeholder="Specify item name, quantity, issue date, club name if any…"
         dependencyOptions={getStoreDepOptions(selectedStudent)}
         dependenciesRequired={false}

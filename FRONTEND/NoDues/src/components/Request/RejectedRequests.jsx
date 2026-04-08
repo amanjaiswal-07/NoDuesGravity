@@ -1,7 +1,7 @@
 // import { EyeIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 
 // export default function RejectedRequests({
-//   title = "Rejected Requests",
+//   title = "Requests On Hold",
 //   data = [],
 //   onMoveToApproved, // optional (if later you want reverse action)
 //   onView,
@@ -17,7 +17,7 @@
 
 //       <div className="space-y-4">
 //         {data.length === 0 ? (
-//           <EmptyState text="No rejected requests" />
+//           <EmptyState text="No requests on hold" />
 //         ) : (
 //           data.map((s, idx) => (
 //             <Row
@@ -79,7 +79,7 @@ import { useMemo, useState } from "react";
 import { EyeIcon, ArrowUturnLeftIcon } from "@heroicons/react/24/outline";
 
 export default function RejectedRequests({
-  title = "Rejected Requests",
+  title = "Requests On Hold",
   data = [],
   onMoveToApproved,
   onMoveToApprovedSelected,
@@ -194,7 +194,7 @@ export default function RejectedRequests({
       <div className="space-y-4">
         {filteredData.length === 0 ? (
           <EmptyState
-            text={validData.length === 0 ? "No rejected requests" : "No matching students found"}
+            text={validData.length === 0 ? "No requests on hold" : "No matching students found"}
           />
         ) : (
           filteredData.map((s, idx) => (

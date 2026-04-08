@@ -71,7 +71,7 @@
 //         onApprove={handleMoveClick}
 //         // Reject
 //         showReject={true}
-//         rejectLabel="Reject"
+//         rejectLabel="Put On Hold"
 //         onReject={handleRejectClick}
 //         // View details
 //         onView={(s) => {
@@ -107,8 +107,8 @@
 //           setRejectSelected(null);
 //         }}
 //         onConfirm={handleConfirmReject}
-//         title="Reject Request"
-//         confirmText="Confirm Reject"
+//         title="Put Request On Hold"
+//         confirmText="Confirm Hold"
 //         reasons={LIB_REJECT_REASONS}
 //         placeholder="Write details (mandatory)..."
 //       />
@@ -199,7 +199,7 @@ export default function LibraryStaffPendingPage() {
           setBulkConfirmOpen(true);
         }}
         showReject={true}
-        rejectLabel="Reject"
+        rejectLabel="Put On Hold"
         onReject={handleRejectClick}
         onView={(s) => {
           setViewStudent(s);
@@ -253,8 +253,8 @@ export default function LibraryStaffPendingPage() {
           setRejectSelected(null);
         }}
         onConfirm={handleConfirmReject}
-        title="Reject Request"
-        confirmText="Confirm Reject"
+        title="Put Request On Hold"
+        confirmText="Confirm Hold"
         reasons={LIB_REJECT_REASONS}
         placeholder="Write details (mandatory)..."
       />

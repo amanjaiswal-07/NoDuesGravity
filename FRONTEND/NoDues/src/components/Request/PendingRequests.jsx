@@ -111,7 +111,7 @@
 //   approveIcon = "check", // "check" | "send"
 //   showApprove = true,
 
-//   rejectLabel = "Reject",
+//   rejectLabel = "Put On Hold",
 //   showReject = true,
 
 //   // NEW: extra button (Library: Partially Accepted)
@@ -266,7 +266,7 @@ export default function PendingRequests({
   approveIcon = "check",
   showApprove = true,
 
-  rejectLabel = "Reject",
+  rejectLabel = "Put On Hold",
   showReject = true,
 
   extraActionLabel = "",

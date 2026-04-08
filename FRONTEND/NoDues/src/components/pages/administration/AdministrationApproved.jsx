@@ -49,7 +49,7 @@ export default function AdministrationApproved() {
           setSelectedStudent(null);
         }}
         reasons={ADMIN_REASONS}
-        title="Move to Rejected"
+        title="Move to On Hold"
         confirmText="Move"
         placeholder="Write details (type of due, amount, reference, remarks)..."
       />

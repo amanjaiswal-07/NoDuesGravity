@@ -11,7 +11,7 @@
 //       <div className="mb-6">
 //         <h1 className="text-2xl font-semibold text-white">{title}</h1>
 //         <p className="mt-1 text-sm text-white/60">
-//           Approved students. You can still move a student to rejected if needed.
+//           Approved students. You can still move a student to on hold if needed.
 //         </p>
 //       </div>
 
@@ -130,7 +130,7 @@ export default function ApprovedRequests({
       <div className="mb-6">
         <h1 className="text-2xl font-semibold text-white">{title}</h1>
         <p className="mt-1 text-sm text-white/60">
-          Approved students. You can still move a student to rejected if needed.
+          Approved students. You can still move a student to on hold if needed.
         </p>
       </div>
 
@@ -222,7 +222,7 @@ function Row({ idx, s, isSelected, onToggleSelect, onMoveToRejected, onView }) {
           className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 px-4 py-2 text-sm font-medium text-amber-300 hover:bg-amber-500/10"
         >
           <ArrowRightCircleIcon className="h-5 w-5" />
-          Move to Rejected
+          Move to On Hold
         </button>
       </div>
     </div>

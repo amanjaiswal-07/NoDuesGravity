@@ -130,8 +130,8 @@
 //           setSelectedStudent(null);
 //         }}
 //         reasons={PLACEMENT_REASONS}
-//         title="Reject Request"
-//         confirmText="Confirm Reject"
+//         title="Put Request On Hold"
+//         confirmText="Confirm Hold"
 //         placeholder="Write details (what is missing, file name, remarks)..."
 //       />
 
@@ -304,8 +304,8 @@ export default function PlacementPending() {
           setSelectedStudent(null);
         }}
         reasons={PLACEMENT_REASONS}
-        title="Reject Request"
-        confirmText="Confirm Reject"
+        title="Put Request On Hold"
+        confirmText="Confirm Hold"
         placeholder="Write details (what is missing, file name, remarks)..."
       />
 

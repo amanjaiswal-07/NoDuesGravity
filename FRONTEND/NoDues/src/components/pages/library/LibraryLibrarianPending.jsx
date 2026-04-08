@@ -38,7 +38,7 @@
 //         onApprove={(s) => librarianApprove(s)}
 //         // Reject
 //         showReject={true}
-//         rejectLabel="Reject"
+//         rejectLabel="Put On Hold"
 //         onReject={(s) => {
 //           setRejectSelected(s);
 //           setRejectOpen(true);
@@ -62,8 +62,8 @@
 //           setRejectOpen(false);
 //           setRejectSelected(null);
 //         }}
-//         title="Reject Request"
-//         confirmText="Confirm Reject"
+//         title="Put Request On Hold"
+//         confirmText="Confirm Hold"
 //         reasons={LIB_REJECT_REASONS}
 //         placeholder="Write details (mandatory)..."
 //       />
@@ -133,7 +133,7 @@ export default function LibraryLibrarianPending() {
           setBulkConfirmOpen(true);
         }}
         showReject={true}
-        rejectLabel="Reject"
+        rejectLabel="Put On Hold"
         onReject={(s) => {
           setRejectSelected(s);
           setRejectOpen(true);
@@ -198,8 +198,8 @@ export default function LibraryLibrarianPending() {
           setRejectOpen(false);
           setRejectSelected(null);
         }}
-        title="Reject Request"
-        confirmText="Confirm Reject"
+        title="Put Request On Hold"
+        confirmText="Confirm Hold"
         reasons={LIB_REJECT_REASONS}
         placeholder="Write details (mandatory)..."
       />

@@ -167,7 +167,7 @@ export default function Header({
   const l = {
     pending: "Pending Requests",
     approved: "Approved Requests",
-    rejected: "Rejected Requests",
+    rejected: "Requests On Hold",
     ...(labels || {}),
   };
 

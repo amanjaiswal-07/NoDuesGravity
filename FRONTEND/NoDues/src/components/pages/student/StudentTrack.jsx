@@ -17,7 +17,7 @@ const STATUS_CONFIG = {
     card: "border-red-400/40 bg-red-500/10",
     text: "text-red-200",
     badge: "bg-red-500/20 text-red-300",
-    label: "Rejected",
+    label: "On Hold",
   },
   pending: {
     dot: "bg-amber-400",
@@ -312,10 +312,10 @@ export default function StudentTrack() {
         <div className="rounded-2xl border border-red-400/30 bg-red-500/10 p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-red-300">Action Required — Rejection Received</p>
+              <p className="text-sm font-semibold text-red-300">Action Required — Placed On Hold</p>
               <p className="mt-1 text-xs text-red-200/70">
-                One or more departments have rejected your request. Review the details below, then reapply.
-                Only the rejected steps will be reset — approved steps remain unchanged.
+                One or more departments have placed your request on hold. Review the details below, then reapply.
+                Only the steps on hold will be reviewed again after you resubmit — approved steps remain unchanged.
               </p>
             </div>
             <button

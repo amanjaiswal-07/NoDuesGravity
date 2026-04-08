@@ -498,6 +498,13 @@ export default function StudentProfile() {
               <p className="text-sm font-medium text-red-200">{errorMsg}</p>
             </div>
           )}
+          {!isLocked && profileSaved && (
+            <div className="mt-6 rounded-xl border border-blue-400/30 bg-blue-500/10 p-4">
+              <p className="text-sm font-medium text-blue-200">
+                You may now update your profile information.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* ── 1. Personal Information ── */}

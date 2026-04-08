@@ -74,7 +74,7 @@ export default function LabsApproved() {
           setSelectedStudent(null);
         }}
             reasons={LAB_REASONS}
-            title="Move to Rejected"
+            title="Move to On Hold"
             confirmText="Move"
             placeholder="Write details (issued item, register entry, remarks)..."
           />

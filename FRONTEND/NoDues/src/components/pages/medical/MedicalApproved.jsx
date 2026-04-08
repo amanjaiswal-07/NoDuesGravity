@@ -65,8 +65,8 @@ export default function MedicalApproved() {
           setSelectedStudent(null);
         }}
         reasons={MEDICAL_REASONS}
-        title="Move to Rejected"
-        confirmText="Move to Rejected"
+        title="Move to On Hold"
+        confirmText="Move to On Hold"
         placeholder="Describe the issue (item name, quantity, remarks)..."
       />
 

@@ -90,8 +90,8 @@ export default function LibraryLibrarianApproved() {
           setRejectOpen(false);
           setRejectSelected(null);
         }}
-        title="Move to Rejected"
-        confirmText="Confirm Reject"
+        title="Move to On Hold"
+        confirmText="Confirm Hold"
         reasons={LIB_REJECT_REASONS}
         placeholder="Write details (mandatory)..."
       />

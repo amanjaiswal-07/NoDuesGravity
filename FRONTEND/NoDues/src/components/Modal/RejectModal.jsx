@@ -27,8 +27,8 @@ export default function RejectModal({
     { value: "misc", label: "Miscellaneous" },
   ],
   placeholder = "Describe the issue in detail (mandatory)…",
-  title = "Reject Request",
-  confirmText = "Confirm Reject",
+  title = "Put Request On Hold",
+  confirmText = "Confirm Hold",
   dependencyOptions = null,   // e.g. [{ value: 'cse_lab_1', label: 'CSE Lab 1' }, ...]
   dependenciesRequired = true, // set false to make dep selection optional (e.g. HOD)
 }) {

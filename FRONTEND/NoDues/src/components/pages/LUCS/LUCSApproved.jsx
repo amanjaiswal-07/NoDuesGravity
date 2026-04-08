@@ -56,7 +56,7 @@ export default function LUCSApproved() {
           setSelectedStudent(null);
         }}
         reasons={LUCS_REASONS}
-        title="Move to Rejected"
+        title="Move to On Hold"
         confirmText="Move"
         placeholder="Write details (GPU username, issue, remarks)..."
       />

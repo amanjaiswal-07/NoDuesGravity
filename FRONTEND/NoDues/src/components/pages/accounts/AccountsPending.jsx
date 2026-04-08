@@ -199,8 +199,8 @@ export default function AccountsPending() {
           setSelectedStudent(null);
         }}
         reasons={ACCOUNTS_REASONS}
-        title="Reject Accounts Request"
-        confirmText="Confirm Reject"
+        title="Put Accounts Request"
+        confirmText="Confirm Hold"
         placeholder="Specify amount due, reference number, department name, or remarks…"
         dependencyOptions={getAccountsDepOptions(selectedStudent)}
         dependenciesRequired={false}

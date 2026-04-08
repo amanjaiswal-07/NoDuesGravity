@@ -57,8 +57,8 @@ export default function NadApproved() {
         }}
         reasons={NAD_REASONS}
         dependencyOptions={getHodOptionForStudent(selectedStudent)}
-        title="Move to Rejected"
-        confirmText="Move to Rejected"
+        title="Move to On Hold"
+        confirmText="Move to On Hold"
         placeholder="Write details (what is missing, reference number, remarks)..."
       />
 

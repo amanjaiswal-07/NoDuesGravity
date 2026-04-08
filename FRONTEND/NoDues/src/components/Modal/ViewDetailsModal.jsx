@@ -25,7 +25,7 @@ function StatusPill({ status }) {
   if (status === "approved")
     return <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300 shadow-sm shadow-emerald-900/30">✓ Approved</span>;
   if (status === "rejected")
-    return <span className="inline-flex items-center gap-1 rounded-full border border-rose-400/40 bg-rose-500/15 px-3 py-1 text-xs font-bold text-rose-300 shadow-sm shadow-rose-900/30">✕ Rejected</span>;
+    return <span className="inline-flex items-center gap-1 rounded-full border border-rose-400/40 bg-rose-500/15 px-3 py-1 text-xs font-bold text-rose-300 shadow-sm shadow-rose-900/30">✕ On Hold</span>;
   if (status === "locked")
     return <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-semibold text-white/40">⏳ Waiting</span>;
   return <span className="inline-flex items-center gap-1 rounded-full border border-amber-400/40 bg-amber-500/15 px-3 py-1 text-xs font-bold text-amber-300 shadow-sm shadow-amber-900/30">● Pending</span>;
@@ -407,7 +407,7 @@ export default function ViewDetailsModal({ open, student, currentDepartment, onC
                 {/* Rejection details */}
                 {currentStatus === "rejected" && (
                   <div className="mt-3 rounded-xl border border-rose-400/30 bg-rose-500/10 p-4">
-                    <p className="text-sm font-semibold text-rose-300">⛔ Rejection Details</p>
+                    <p className="text-sm font-semibold text-rose-300">⛔ Hold Details</p>
                     <div className="mt-2 space-y-1.5">
                       <div>
                         <p className="text-[11px] text-rose-300/60">Reason</p>
@@ -421,7 +421,7 @@ export default function ViewDetailsModal({ open, student, currentDepartment, onC
                       )}
                       {step?.rejectedAt && (
                         <p className="text-[11px] text-rose-300/40">
-                          Rejected at {new Date(step.rejectedAt).toLocaleString()}
+                          Placed on hold at {new Date(step.rejectedAt).toLocaleString()}
                         </p>
                       )}
                     </div>

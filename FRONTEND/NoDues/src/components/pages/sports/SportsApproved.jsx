@@ -48,7 +48,7 @@ export default function SportsApproved() {
           setSelectedStudent(null);
         }}
         reasons={SPORTS_REASONS}
-        title="Move to Rejected"
+        title="Move to On Hold"
         confirmText="Move"
         placeholder="Write miscellaneous reason..."
       />

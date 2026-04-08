@@ -81,8 +81,8 @@ export default function HODApproved() {
         reasons={HOD_REASONS}
         dependencyOptions={HOD_DEP_OPTIONS}
         dependenciesRequired={false}
-        title="Move to Rejected"
-        confirmText="Move to Rejected"
+        title="Move to On Hold"
+        confirmText="Move to On Hold"
         placeholder="Specify which clearance was incorrectly approved and why..."
       />
 

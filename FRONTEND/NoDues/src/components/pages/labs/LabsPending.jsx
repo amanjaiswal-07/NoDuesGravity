@@ -107,8 +107,8 @@
 //               setSelectedStudent(null);
 //             }}
 //             reasons={LAB_REASONS}
-//             title="Reject Request"
-//             confirmText="Confirm Reject"
+//             title="Put Request On Hold"
+//             confirmText="Confirm Hold"
 //             placeholder="Write details (issued item, register entry, remarks)..."
 //           />
 
@@ -270,8 +270,8 @@ export default function LabsPending() {
               setSelectedStudent(null);
             }}
             reasons={LAB_REASONS}
-            title="Reject Lab Clearance"
-            confirmText="Confirm Reject"
+            title="Put Lab Clearance"
+            confirmText="Confirm Hold"
             placeholder="Specify the issued item, register entry, amount, or any remarks…"
           />
 

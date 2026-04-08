@@ -69,8 +69,8 @@ export default function StoreApproved() {
         reasons={STORE_REASONS}
         dependencyOptions={getStoreDepOptions(selectedStudent)}
         dependenciesRequired={false}
-        title="Move to Rejected"
-        confirmText="Move to Rejected"
+        title="Move to On Hold"
+        confirmText="Move to On Hold"
         placeholder="Write details (item name, quantity, issue date, club name if any)..."
       />
 

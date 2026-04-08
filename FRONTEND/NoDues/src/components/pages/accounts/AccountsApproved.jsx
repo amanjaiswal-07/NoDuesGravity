@@ -123,8 +123,8 @@ export default function AccountsApproved() {
         reasons={ACCOUNTS_REASONS}
         dependencyOptions={getAccountsDepOptions(selectedStudent)}
         dependenciesRequired={false}
-        title="Move to Rejected"
-        confirmText="Move to Rejected"
+        title="Move to On Hold"
+        confirmText="Move to On Hold"
         placeholder="Write details (amount due, reference, department name, remarks)..."
       />
 

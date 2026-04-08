@@ -188,8 +188,8 @@ export default function MedicalPending() {
         onClose={closeReject}
         onConfirm={confirmReject}
         reasons={MEDICAL_REASONS}
-        title="Reject Medical Clearance"
-        confirmText="Confirm Reject"
+        title="Put Medical Clearance"
+        confirmText="Confirm Hold"
         placeholder="Describe the issue (item name, quantity, remarks)..."
       />
 
